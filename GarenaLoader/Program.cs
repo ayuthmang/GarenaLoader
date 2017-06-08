@@ -63,11 +63,15 @@ namespace GarenaLoader
 
                 if (File.Exists(GarenaTalkPath))
                 {
-                    File.Move(GarenaTalkPath, Path.GetDirectoryName(GarenaTalkPath) + "BBTalk.exe.lod");
+                    File.Move(GarenaTalkPath, Path.GetDirectoryName(GarenaTalkPath) + @"\BBTalk.exe.lod");
                 }
                 Process.Start(GarenaMessengerPath);
             }
-            catch(FileNotFoundException ex)
+            catch (FileNotFoundException ex)
+            {
+                WriteLine(ex.Message, ConsoleColor.Red);
+            }
+            catch (Exception ex)
             {
                 WriteLine(ex.Message, ConsoleColor.Red);
             }
@@ -116,6 +120,11 @@ namespace GarenaLoader
                     iniFile.IniWriteValue("GarenaMessenger", "Path", GarenaMessengerPath);
                     iniFile.IniWriteValue("GarenaTalk", "Path", GarenaTalkPath);
                 }
+                else
+                {
+                    GarenaMessengerPath = iniFile.IniReadValue("GarenaMessenger", "Path");
+                    GarenaTalkPath = iniFile.IniReadValue("GarenaTalk", "Path");
+                }
             }
         }
 
@@ -130,13 +139,19 @@ namespace GarenaLoader
             }
             try
             {
-                if (File.Exists(GarenaTalkPath))
+                if (File.Exists(Path.GetDirectoryName(GarenaTalkPath) + @"\BBTalk.exe.lod"))
                 {
-                    File.Move(Path.GetDirectoryName(GarenaTalkPath) + "BBTalk.exe.lod", GarenaTalkPath);
+                    File.Move(Path.GetDirectoryName(GarenaTalkPath) + @"\BBTalk.exe.lod", GarenaTalkPath);
+                    Console.WriteLine("Restore file completed", ConsoleColor.Green);
+                }
+                else{
+                    WriteLine("Restore file failed", ConsoleColor.Red);
+                    Environment.Exit(-1);
                 }
             }
             catch(Exception ex)
             {
+                Console.WriteLine("Garena --> Close()");
                 WriteLine(ex.Message, ConsoleColor.Red);
             }
 
@@ -145,6 +160,37 @@ namespace GarenaLoader
     
     class Program
     {
+        public static Garena garena;
+        //Thanks: https://stackoverflow.com/questions/4646827/on-exit-for-a-console-application
+        private delegate bool ConsoleEventDelegate(int eventType);
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add);
+
+        static ConsoleEventDelegate handler;   // Keeps it from getting garbage collected
+                                               // Pinvoke
+
+        static bool ConsoleEventCallback(int eventType)
+        {
+            if (eventType == 2) // console is closing
+            {
+                WriteLine("Garena will be close are you sure ? (y/n)", ConsoleColor.Red);
+                if(Console.ReadLine().Trim().ToLower() == "y")
+                {
+                    garena.Close();
+                    Environment.Exit(0);
+                }
+                else
+                {
+                    return false;
+                }
+                
+            }
+            return false;
+        }
+
+
+
+
         public static readonly String VERSION = "0.1";
         public static void Write(String message, ConsoleColor color)
         {
@@ -163,7 +209,11 @@ namespace GarenaLoader
         [STAThread] // Thanks https://stackoverflow.com/questions/15270387/browse-for-folder-in-console-application
         static void Main(string[] args)
         {
+            handler = new ConsoleEventDelegate(ConsoleEventCallback);
+            SetConsoleCtrlHandler(handler, true);
             Console.WriteLine("Finding and kill all garena processes ...");
+
+            garena = new Garena();
             // Find all and kill all process Garena Messenger and TalkTalk
             foreach (Process proc in Process.GetProcesses())
             {
@@ -172,18 +222,8 @@ namespace GarenaLoader
                     proc.Kill();
                 }
             }
-            Garena garena = new Garena();
             garena.SetUp();
             garena.Start();
-            while (true)
-            {
-                Console.WriteLine("Are you sure want to close this ?");
-                if(Console.ReadLine().Trim().ToLower() == "y")
-                {
-                    garena.Close();
-                }
-            }
-
         }
     }
 }
