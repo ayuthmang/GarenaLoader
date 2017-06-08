@@ -11,9 +11,7 @@ using System.Diagnostics;
 
 namespace GarenaLoader
 {
-
-
-
+    
     class Garena
     {
         public static void Write(String message, ConsoleColor color)
@@ -73,6 +71,7 @@ namespace GarenaLoader
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Garena --> Start()");
                 WriteLine(ex.Message, ConsoleColor.Red);
             }
         }
@@ -95,7 +94,7 @@ namespace GarenaLoader
                     fileDialog.Title = "Please choose GarenaMessenger.exe path";
                     fileDialog.FileName = "GarenaMessenger.exe";
                     fileDialog.Filter = "GarenaMessenger.exe | GarenaMessenger.exe";
-                } while (fileDialog.ShowDialog() == DialogResult.OK);
+                } while (fileDialog.ShowDialog() != DialogResult.OK);
 
                 GarenaMessengerPath = fileDialog.FileName;
                 GarenaTalkPath = Path.GetDirectoryName(fileDialog.FileName) + @"\bbtalk\BBTalk.exe";
@@ -113,7 +112,7 @@ namespace GarenaLoader
                         fileDialog.Title = "Please choose GarenaMessenger.exe path";
                         fileDialog.FileName = "GarenaMessenger.exe";
                         fileDialog.Filter = "GarenaMessenger.exe | GarenaMessenger.exe";
-                    } while (fileDialog.ShowDialog() == DialogResult.OK);
+                    } while (fileDialog.ShowDialog() != DialogResult.OK);
 
                     GarenaMessengerPath = fileDialog.FileName;
                     GarenaTalkPath = Path.GetDirectoryName(fileDialog.FileName) + @"\bbtalk\BBTalk.exe";
@@ -137,6 +136,7 @@ namespace GarenaLoader
                     proc.Kill();
                 }
             }
+            System.Threading.Thread.Sleep(2000);
             try
             {
                 if (File.Exists(Path.GetDirectoryName(GarenaTalkPath) + @"\BBTalk.exe.lod"))
@@ -173,23 +173,11 @@ namespace GarenaLoader
         {
             if (eventType == 2) // console is closing
             {
-                WriteLine("Garena will be close are you sure ? (y/n)", ConsoleColor.Red);
-                if(Console.ReadLine().Trim().ToLower() == "y")
-                {
-                    garena.Close();
-                    Environment.Exit(0);
-                }
-                else
-                {
-                    return false;
-                }
-                
+
+                garena.Close();
             }
             return false;
         }
-
-
-
 
         public static readonly String VERSION = "0.1";
         public static void Write(String message, ConsoleColor color)
@@ -224,6 +212,15 @@ namespace GarenaLoader
             }
             garena.SetUp();
             garena.Start();
+            while (true)
+            {
+                WriteLine("Garena will be terminated are you sure? (y/n)", ConsoleColor.Red);
+                if (Console.ReadLine().Trim().ToLower() == "y")
+                {
+                    garena.Close();
+                    Environment.Exit(0);
+                }
+            }
         }
     }
 }
