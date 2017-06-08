@@ -44,6 +44,7 @@ namespace GarenaLoader
 
         public Garena()
         {
+            // Initial objects
             iniFile = new INIFile( SETTING_FILE_FULLPATH );
         }
 
@@ -80,15 +81,16 @@ namespace GarenaLoader
 
         public void SetUp()
         {
-            //if file not exists then create a file
+            // if file not exists then create a file
             if (!File.Exists(SETTING_FILE_FULLPATH))
             {
                 File.Create(SETTING_FILE_FULLPATH).Close();
             }
 
-            //read garenapath from file
+            // read garenapath from file
             if (iniFile.IniReadValue("GarenaTalk", "Path") == "" | iniFile.IniReadValue("GarenaTalk", "Path") == "")
             {
+                // if read path failed or returned null
                 OpenFileDialog fileDialog;
                 do
                 {
@@ -168,6 +170,7 @@ namespace GarenaLoader
     class Program
     {
         public static Garena garena;
+
         //Thanks: https://stackoverflow.com/questions/4646827/on-exit-for-a-console-application
         private delegate bool ConsoleEventDelegate(int eventType);
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -180,7 +183,7 @@ namespace GarenaLoader
         {
             if (eventType == 2) // console is closing
             {
-
+                WriteLine("Closing GarenaLoader ...",ConsoleColor.Yellow);
                 garena.Close();
             }
             return false;
@@ -204,9 +207,9 @@ namespace GarenaLoader
         [STAThread] // Thanks https://stackoverflow.com/questions/15270387/browse-for-folder-in-console-application
         static void Main(string[] args)
         {
-            WriteLine("GarenaLoader ", ConsoleColor.Yellow);
+            WriteLine("GarenaLoader ", ConsoleColor.Cyan);
             WriteLine("Developed by blackSource",ConsoleColor.White);
-            WriteLine("Source Code: https://github.com/blackSourcez/GarenaLoader", ConsoleColor.Gray);
+            Write("Source code can be found at: ", ConsoleColor.Yellow); WriteLine("https://github.com/blackSourcez/GarenaLoader", ConsoleColor.Green);
             Console.WriteLine();
             handler = new ConsoleEventDelegate(ConsoleEventCallback);
             SetConsoleCtrlHandler(handler, true);
@@ -230,8 +233,19 @@ namespace GarenaLoader
                 WriteLine("Press 'y' to exit loader and terminate GarenaMessenger", ConsoleColor.Red);
                 if (Console.ReadLine().Trim().ToLower() == "y")
                 {
-                    garena.Close();
                     Environment.Exit(0);
+                }
+                foreach (Process proc in Process.GetProcesses())
+                {
+                    if (proc.ProcessName == "GarenaMessenger" || proc.ProcessName == "BBTalk")
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        garena.Close();
+                        Environment.Exit(0);
+                    }
                 }
             }
         }
