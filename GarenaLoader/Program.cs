@@ -63,7 +63,9 @@ namespace GarenaLoader
                 {
                     File.Move(GarenaTalkPath, Path.GetDirectoryName(GarenaTalkPath) + @"\BBTalk.exe.lod");
                 }
+                Write("Starting GarenaMessenger ... ", ConsoleColor.Yellow);
                 Process.Start(GarenaMessengerPath);
+                WriteLine("Success", ConsoleColor.Green);
             }
             catch (FileNotFoundException ex)
             {
@@ -129,6 +131,7 @@ namespace GarenaLoader
 
         public void Close()
         {
+            // kill all process about garena
             foreach (Process proc in Process.GetProcesses())
             {
                 if (proc.ProcessName == "GarenaMessenger" || proc.ProcessName == "BBTalk")
@@ -136,16 +139,20 @@ namespace GarenaLoader
                     proc.Kill();
                 }
             }
+
+            // Waited delay for start GarenaMessenger and move BBTalk
             System.Threading.Thread.Sleep(2000);
             try
             {
                 if (File.Exists(Path.GetDirectoryName(GarenaTalkPath) + @"\BBTalk.exe.lod"))
                 {
+                    Write("Restoring file ... ", ConsoleColor.Yellow);
                     File.Move(Path.GetDirectoryName(GarenaTalkPath) + @"\BBTalk.exe.lod", GarenaTalkPath);
-                    Console.WriteLine("Restore file completed", ConsoleColor.Green);
+                    WriteLine("Completed", ConsoleColor.Green);
                 }
                 else{
                     WriteLine("Restore file failed", ConsoleColor.Red);
+                    WriteLine("Exiting Program ...", ConsoleColor.Red);
                     Environment.Exit(-1);
                 }
             }
@@ -197,12 +204,17 @@ namespace GarenaLoader
         [STAThread] // Thanks https://stackoverflow.com/questions/15270387/browse-for-folder-in-console-application
         static void Main(string[] args)
         {
+            WriteLine("GarenaLoader ", ConsoleColor.Yellow);
+            WriteLine("Developed by blackSource",ConsoleColor.White);
+            WriteLine("Source Code: https://github.com/blackSourcez/GarenaLoader", ConsoleColor.Gray);
+            Console.WriteLine();
             handler = new ConsoleEventDelegate(ConsoleEventCallback);
             SetConsoleCtrlHandler(handler, true);
-            Console.WriteLine("Finding and kill all garena processes ...");
 
-            garena = new Garena();
+
+            WriteLine("Initial Loader ...", ConsoleColor.Green);
             // Find all and kill all process Garena Messenger and TalkTalk
+            Console.WriteLine("Finding and kill all garena processes ...");
             foreach (Process proc in Process.GetProcesses())
             {
                 if (proc.ProcessName == "GarenaMessenger" || proc.ProcessName == "BBTalk")
@@ -210,11 +222,12 @@ namespace GarenaLoader
                     proc.Kill();
                 }
             }
+            garena = new Garena();
             garena.SetUp();
             garena.Start();
             while (true)
             {
-                WriteLine("Garena will be terminated are you sure? (y/n)", ConsoleColor.Red);
+                WriteLine("Press 'y' to exit loader and terminate GarenaMessenger", ConsoleColor.Red);
                 if (Console.ReadLine().Trim().ToLower() == "y")
                 {
                     garena.Close();
