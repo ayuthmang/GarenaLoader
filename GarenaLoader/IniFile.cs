@@ -28,7 +28,7 @@ namespace Ini
     /// <summary>
     /// Create a New INI file to store or load data
     /// </summary>
-    public class IniFile
+    public class INIFile
     {
         public string path;
 
@@ -44,7 +44,7 @@ namespace Ini
         /// INIFile Constructor.
         /// </summary>
         /// <PARAM name="INIPath"></PARAM>
-        public IniFile(string INIPath)
+        public INIFile(string INIPath)
         {
             path = INIPath;
         }
