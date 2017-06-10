@@ -60,6 +60,9 @@ namespace GarenaLoader
                     }
                 }
 
+                // Waited delay for start GarenaMessenger and move BBTalk
+                System.Threading.Thread.Sleep(3500);
+            
                 if (File.Exists(GarenaTalkPath))
                 {
                     File.Move(GarenaTalkPath, Path.GetDirectoryName(GarenaTalkPath) + @"\BBTalk.exe.lod");
@@ -143,7 +146,7 @@ namespace GarenaLoader
             }
 
             // Waited delay for start GarenaMessenger and move BBTalk
-            System.Threading.Thread.Sleep(2000);
+            System.Threading.Thread.Sleep(3500);
             try
             {
                 if (File.Exists(Path.GetDirectoryName(GarenaTalkPath) + @"\BBTalk.exe.lod"))
@@ -207,13 +210,14 @@ namespace GarenaLoader
         [STAThread] // Thanks https://stackoverflow.com/questions/15270387/browse-for-folder-in-console-application
         static void Main(string[] args)
         {
-            WriteLine("GarenaLoader ", ConsoleColor.Cyan);
+            Console.Title = String.Format("GarenaLoader v{0}",VERSION);
+            WriteLine("GarenaLoader ", ConsoleColor.Magenta);
             WriteLine("Developed by blackSource",ConsoleColor.White);
             Write("Source code can be found at: ", ConsoleColor.Yellow); WriteLine("https://github.com/blackSourcez/GarenaLoader", ConsoleColor.Green);
             Console.WriteLine();
+
             handler = new ConsoleEventDelegate(ConsoleEventCallback);
             SetConsoleCtrlHandler(handler, true);
-
 
             WriteLine("Initial Loader ...", ConsoleColor.Green);
             // Find all and kill all process Garena Messenger and TalkTalk
@@ -233,6 +237,9 @@ namespace GarenaLoader
                 WriteLine("Press 'y' to exit loader and terminate GarenaMessenger", ConsoleColor.Red);
                 if (Console.ReadLine().Trim().ToLower() == "y")
                 {
+                    // by Environment.Exit(0) exit will not catch by EventCallBack
+                    // so we gonna close garena by self
+                    garena.Close();
                     Environment.Exit(0);
                 }
                 foreach (Process proc in Process.GetProcesses())
@@ -243,6 +250,8 @@ namespace GarenaLoader
                     }
                     else
                     {
+                        // by Environment.Exit(0) exit will not catch by EventCallBack
+                        // so we gonna close garena by self
                         garena.Close();
                         Environment.Exit(0);
                     }

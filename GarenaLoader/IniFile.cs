@@ -75,7 +75,6 @@ namespace Ini
             int i = GetPrivateProfileString(Section, Key, "", temp,
                                             255, this.path);
             return temp.ToString();
-
         }
     }
 }
