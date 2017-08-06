@@ -90,11 +90,11 @@ namespace GarenaLoader
                 File.Create(SETTING_FILE_FULLPATH).Close();
             }
 
+            OpenFileDialog fileDialog;
             // read garenapath from file
             if (iniFile.IniReadValue("GarenaTalk", "Path") == "" | iniFile.IniReadValue("GarenaTalk", "Path") == "")
             {
                 // if read path failed or returned null
-                OpenFileDialog fileDialog;
                 do
                 {
                     fileDialog = new OpenFileDialog();
@@ -112,7 +112,6 @@ namespace GarenaLoader
             {
                 if (iniFile.IniReadValue("GarenaTalk", "Path") == "" | iniFile.IniReadValue("GarenaTalk", "Path") == "")
                 {
-                    OpenFileDialog fileDialog;
                     do
                     {
                         fileDialog = new OpenFileDialog();
@@ -134,14 +133,16 @@ namespace GarenaLoader
             }
         }
 
-        public void Close()
+        public bool Close()
         {
+            Console.WriteLine();
+            WriteLine("Closing GarenaLoader ...", ConsoleColor.Yellow);
             // kill all process about garena
             foreach (Process proc in Process.GetProcesses())
             {
                 if (proc.ProcessName == "GarenaMessenger" || proc.ProcessName == "BBTalk")
                 {
-                    proc.Kill();
+                    proc.Kill();   
                 }
             }
 
@@ -157,16 +158,16 @@ namespace GarenaLoader
                 }
                 else{
                     WriteLine("Restore file failed", ConsoleColor.Red);
-                    WriteLine("Exiting Program ...", ConsoleColor.Red);
-                    Environment.Exit(-1);
+                    return false;
                 }
             }
             catch(Exception ex)
             {
                 Console.WriteLine("Garena --> Close()");
                 WriteLine(ex.Message, ConsoleColor.Red);
+                return false;
             }
-
+            return true;
         }
     }
     
@@ -186,7 +187,6 @@ namespace GarenaLoader
         {
             if (eventType == 2) // console is closing
             {
-                WriteLine("Closing GarenaLoader ...", ConsoleColor.Yellow);
                 garena.Close();
             }
             return false;
@@ -239,22 +239,8 @@ namespace GarenaLoader
                 {
                     // by Environment.Exit(0) exit will not catch by EventCallBack
                     // so we gonna close garena by self
-                    garena.Close();
-                    foreach (Process proc in Process.GetProcesses())
-                    {
-                        if (proc.ProcessName == "GarenaMessenger" || proc.ProcessName == "BBTalk")
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            // by Environment.Exit(0) exit will not catch by EventCallBack
-                            // so we gonna close garena by self
-                            garena.Close();
-                            Environment.Exit(0);
-                        }
-                    }
-                    Environment.Exit(0);
+                    if (garena.Close())
+                        Environment.Exit(0);
                 }
             }
         }
