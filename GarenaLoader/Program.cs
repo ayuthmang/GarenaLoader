@@ -186,13 +186,13 @@ namespace GarenaLoader
         {
             if (eventType == 2) // console is closing
             {
-                WriteLine("Closing GarenaLoader ...",ConsoleColor.Yellow);
+                WriteLine("Closing GarenaLoader ...", ConsoleColor.Yellow);
                 garena.Close();
             }
             return false;
         }
 
-        public static readonly String VERSION = "0.1";
+        public static readonly String VERSION = "0.1.1";
         public static void Write(String message, ConsoleColor color)
         {
             Console.ForegroundColor = color;
@@ -211,7 +211,7 @@ namespace GarenaLoader
         static void Main(string[] args)
         {
             Console.Title = String.Format("GarenaLoader v{0}",VERSION);
-            WriteLine("GarenaLoader ", ConsoleColor.Magenta);
+            WriteLine("[GarenaLoader]", ConsoleColor.Magenta);
             WriteLine("Developed by blackSource",ConsoleColor.White);
             Write("Source code can be found at: ", ConsoleColor.Yellow); WriteLine("https://github.com/blackSourcez/GarenaLoader", ConsoleColor.Green);
             Console.WriteLine();
@@ -234,27 +234,27 @@ namespace GarenaLoader
             garena.Start();
             while (true)
             {
-                WriteLine("Press 'y' to exit loader and terminate GarenaMessenger", ConsoleColor.Red);
+                Write("Press 'y' to exit loader and terminate GarenaMessenger: ", ConsoleColor.Red);
                 if (Console.ReadLine().Trim().ToLower() == "y")
                 {
                     // by Environment.Exit(0) exit will not catch by EventCallBack
                     // so we gonna close garena by self
                     garena.Close();
+                    foreach (Process proc in Process.GetProcesses())
+                    {
+                        if (proc.ProcessName == "GarenaMessenger" || proc.ProcessName == "BBTalk")
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            // by Environment.Exit(0) exit will not catch by EventCallBack
+                            // so we gonna close garena by self
+                            garena.Close();
+                            Environment.Exit(0);
+                        }
+                    }
                     Environment.Exit(0);
-                }
-                foreach (Process proc in Process.GetProcesses())
-                {
-                    if (proc.ProcessName == "GarenaMessenger" || proc.ProcessName == "BBTalk")
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        // by Environment.Exit(0) exit will not catch by EventCallBack
-                        // so we gonna close garena by self
-                        garena.Close();
-                        Environment.Exit(0);
-                    }
                 }
             }
         }
