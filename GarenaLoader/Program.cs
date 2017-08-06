@@ -224,7 +224,7 @@ namespace GarenaLoader
         }
 #endregion
 
-        public static readonly String VERSION = "0.1.1";
+        public static readonly String VERSION = "0.1.2";
         public static void Write(String message, ConsoleColor color)
         {
             Console.ForegroundColor = color;
