@@ -135,8 +135,8 @@ namespace GarenaLoader
 
         public bool Close()
         {
-            Console.WriteLine();
-            WriteLine("Closing GarenaLoader ...", ConsoleColor.Yellow);
+            Console.WriteLine("\n");
+            WriteLine("[Closing]", ConsoleColor.Green);
             // kill all process about garena
             foreach (Process proc in Process.GetProcesses())
             {
@@ -170,9 +170,10 @@ namespace GarenaLoader
             return true;
         }
     }
-    
+
     class Program
     {
+
         public static Garena garena;
 
         //Thanks: https://stackoverflow.com/questions/4646827/on-exit-for-a-console-application
@@ -191,6 +192,37 @@ namespace GarenaLoader
             }
             return false;
         }
+
+#region "trap ctr + c"
+        //ref: http://geekswithblogs.net/mrnat/archive/2004/09/23/11594.aspx
+
+        // Declare the SetConsoleCtrlHandler function
+        // as external and receiving a delegate.
+        [DllImport("Kernel32")]
+        public static extern bool SetConsoleCtrlHandler(HandlerRoutine Handler, bool Add);
+
+        // A delegate type to be used as the handler routine 
+        // for SetConsoleCtrlHandler.
+        public delegate bool HandlerRoutine(CtrlTypes CtrlType);
+
+        // An enumerated type for the control messages
+        // sent to the handler routine.
+        public enum CtrlTypes
+        {
+            CTRL_C_EVENT = 0,
+            CTRL_BREAK_EVENT,
+            CTRL_CLOSE_EVENT,
+            CTRL_LOGOFF_EVENT = 5,
+            CTRL_SHUTDOWN_EVENT
+        }
+
+        private static bool ConsoleCtrlCheck(CtrlTypes ctrlType)
+        {
+            if (garena.Close())
+                Environment.Exit(0);
+            return true;
+        }
+#endregion
 
         public static readonly String VERSION = "0.1.1";
         public static void Write(String message, ConsoleColor color)
@@ -216,12 +248,27 @@ namespace GarenaLoader
             Write("Source code can be found at: ", ConsoleColor.Yellow); WriteLine("https://github.com/blackSourcez/GarenaLoader", ConsoleColor.Green);
             Console.WriteLine();
 
-            handler = new ConsoleEventDelegate(ConsoleEventCallback);
-            SetConsoleCtrlHandler(handler, true);
+            // init
+            WriteLine("[Initial Loader]", ConsoleColor.Green);
 
-            WriteLine("Initial Loader ...", ConsoleColor.Green);
+            // console event callback
+            Write("Setting console event callback ... ", ConsoleColor.Yellow);
+            {
+                handler = new ConsoleEventDelegate(ConsoleEventCallback);
+                SetConsoleCtrlHandler(handler, true);
+            }
+            WriteLine("Success", ConsoleColor.Green);
+
+
+            // console ctrl callback
+            Write("Setting console ctrl callback ... ", ConsoleColor.Yellow);
+            { 
+                SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
+            }
+            WriteLine("Success", ConsoleColor.Green);
+
             // Find all and kill all process Garena Messenger and TalkTalk
-            Console.WriteLine("Finding and kill all garena processes ...");
+            Write("Finding and kill all garena processes ... ", ConsoleColor.Yellow);
             foreach (Process proc in Process.GetProcesses())
             {
                 if (proc.ProcessName == "GarenaMessenger" || proc.ProcessName == "BBTalk")
@@ -229,13 +276,18 @@ namespace GarenaLoader
                     proc.Kill();
                 }
             }
+            WriteLine("Success", ConsoleColor.Green);
+
             garena = new Garena();
             garena.SetUp();
             garena.Start();
+
+            String input;
             while (true)
             {
                 Write("Press 'y' to exit loader and terminate GarenaMessenger: ", ConsoleColor.Red);
-                if (Console.ReadLine().Trim().ToLower() == "y")
+                input = Console.ReadLine();
+                if (input == "y")
                 {
                     // by Environment.Exit(0) exit will not catch by EventCallBack
                     // so we gonna close garena by self
