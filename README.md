@@ -1,4 +1,4 @@
-# GarenaLoader
+# Garena Loader
 
 GarenaLoader is an awesome loader that loaded only GarenaMessenger without GarenaTalk (TalkTalk) cause TalkTalk eat more your RAM!.
 
