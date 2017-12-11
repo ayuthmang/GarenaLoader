@@ -1,3 +1,7 @@
+# This project will be deprecated
+
+Garena+ will be replace with new Garena in 18 December, so there are no TalkTalk anymore.
+
 # Garena Loader
 
 GarenaLoader is an awesome loader that loaded only GarenaMessenger without GarenaTalk (TalkTalk) cause TalkTalk eat more your RAM!.
