@@ -1,6 +1,6 @@
 # This project will be deprecated
 
-Garena+ will be replace with new Garena in 18 December, so there are no TalkTalk anymore.
+Garena+ will be replace with [new Garena](https://platform.garena.in.th/plus/) in 18 December, so there are no TalkTalk anymore.
 
 # Garena Loader
 
